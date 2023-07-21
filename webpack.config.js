@@ -31,6 +31,16 @@ module.exports = {
           MiniCssExtractPlugin.loader, 'css-loader',
         ],
       },
+      {
+        test: /\.txt$/,
+        type: 'asset/source' 
+        // use: 'raw-loader' 
+        // в Webpack 5: type: 'asset/resource' вместо use: 'raw-loader'
+      },
+      {
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        type: 'asset/resource',
+      },
     ],
   },
   plugins: [

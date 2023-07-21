@@ -1,6 +1,16 @@
-// TODO: write your code here
-import sum from './basic';
+/**
+ * Entry point of app: don't change this
+ */
+import GamePlay from './GamePlay';
+import GameController from './GameController';
+import GameStateService from './GameStateService';
 
-console.log('worked');
+const gamePlay = new GamePlay();
+gamePlay.bindToDOM(document.querySelector('#game-container'));
 
-console.log(sum([1, 2]));
+const stateService = new GameStateService(localStorage);
+
+const gameCtrl = new GameController(gamePlay, stateService);
+gameCtrl.init();
+
+// don't write your code here

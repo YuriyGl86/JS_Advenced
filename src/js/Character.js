@@ -14,6 +14,10 @@
  */
 export default class Character {
   constructor(level, type = 'generic') {
+    if (new.target && new.target.name === 'Character') {
+      throw new Error('It is forbidden to create new objects of the class Character');
+    }
+
     this.level = level;
     this.attack = 0;
     this.defence = 0;

@@ -136,10 +136,30 @@ export default class GameController {
   }
 
   canMove(index){
-    if (Math.abs(this.gamePlay.activeChar.position - index) <=2){
-      console.log('can move')
-      return true
+    const moveArray = []
+    const x = this.gamePlay.activeChar.position
+    const leftBorder = Math.floor(x / this.gamePlay.boardSize) * this.gamePlay.boardSize
+    const rightBorder = leftBorder + this.gamePlay.boardSize - 1
+    
+    for (let step = 1; step <= this.gamePlay.activeChar.character.move; step +=1){
+      moveArray.push(x - step*this.gamePlay.boardSize)
+      moveArray.push(x + step*this.gamePlay.boardSize)
+      moveArray.push(x + step*(this.gamePlay.boardSize + 1))
+      moveArray.push(x - step*(this.gamePlay.boardSize + 1))
+      moveArray.push(x + step*(this.gamePlay.boardSize - 1))
+      moveArray.push(x - step*(this.gamePlay.boardSize - 1))
+      if(x-step >= leftBorder) (moveArray.push(x-step))
+      if(x+step <= rightBorder) (moveArray.push(x+step))
     }
+    console.log(moveArray)
+    return moveArray.includes(index)
+
+
+
+
+    // if (Math.abs(this.gamePlay.activeChar.position - index) <=2){
+    //   return true
+    // }
   }
 
   canAtack(index){

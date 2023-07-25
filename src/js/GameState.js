@@ -1,6 +1,6 @@
 export default class GameState {
-  constructor(){
-    this.userTurn = true
+  constructor() {
+    this.userTurn = true;
   }
 
   static from(object) {

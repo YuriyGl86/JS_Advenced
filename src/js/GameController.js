@@ -19,69 +19,62 @@ export default class GameController {
   init() {
     this.gamePlay.drawUi(themes.prairie);
     this.placeTeams();
-    this.gamePlay.addCellEnterListener(this.onCellEnter.bind(this))
-    this.gamePlay.addCellLeaveListener(this.onCellLeave.bind(this))
-    this.gamePlay.addCellClickListener(this.onCellClick.bind(this))
+    this.gamePlay.addCellEnterListener(this.onCellEnter.bind(this));
+    this.gamePlay.addCellLeaveListener(this.onCellLeave.bind(this));
+    this.gamePlay.addCellClickListener(this.onCellClick.bind(this));
     // TODO: add event listeners to gamePlay events
     // TODO: load saved stated from stateService
   }
 
   onCellClick(index) {
     // TODO: react to click
-    const char = this.checkEmptyCell(index)
-    
-    if(char && ['bowman','swordsman','magician'].includes(char.character.type)){
-      if(this.gamePlay.activeChar){
-        this.gamePlay.deselectCell(this.gamePlay.activeChar.position)
-      }      
-      this.gamePlay.selectCell(char.position)
-      this.gamePlay.activeChar = char
-    } else {
-      GamePlay.showError('it is not your character')
-    }
+    const char = this.checkEmptyCell(index);
 
+    if (char && ['bowman', 'swordsman', 'magician'].includes(char.character.type)) {
+      if (this.gamePlay.activeChar) {
+        this.gamePlay.deselectCell(this.gamePlay.activeChar.position);
+      }
+      this.gamePlay.selectCell(char.position);
+      this.gamePlay.activeChar = char;
+    } else {
+      GamePlay.showError('it is not your character');
+    }
   }
 
   onCellEnter(index) {
-    // TODO: react to mouse enter    
-    if(this.gamePlay.activeChar && this.gamePlay.activeCell != this.gamePlay.activeChar.position){      
-      this.gamePlay.deselectCell(this.gamePlay.activeCell)
+    // TODO: react to mouse enter
+    if (this.gamePlay.activeChar
+      && this.gamePlay.activeCell !== this.gamePlay.activeChar.position) {
+      this.gamePlay.deselectCell(this.gamePlay.activeCell);
     }
-    const char = this.checkEmptyCell(index)
-    if(char){
-      const msg = this.getTooltipMsg(char)
-      this.gamePlay.showCellTooltip(msg, index)
-      if(['bowman','swordsman','magician'].includes(char.character.type)){
-        this.gamePlay.setCursor(cursors.pointer)
+    const char = this.checkEmptyCell(index);
+    if (char) {
+      const msg = this.getTooltipMsg(char);
+      this.gamePlay.showCellTooltip(msg, index);
+      if (['bowman', 'swordsman', 'magician'].includes(char.character.type)) {
+        this.gamePlay.setCursor(cursors.pointer);
+      } else if (this.gamePlay.activeChar && this.canAtack(index)) {
+        this.gamePlay.setCursor(cursors.crosshair);
+        this.gamePlay.selectCell(index, 'red');
       } else {
-        if (this.gamePlay.activeChar && this.canAtack(index)){
-          this.gamePlay.setCursor(cursors.crosshair)
-          this.gamePlay.selectCell(index, 'red')
-        } else {
-          this.gamePlay.setCursor(cursors.notallowed)
-
-        }
-    
+        this.gamePlay.setCursor(cursors.notallowed);
+      }
+    } else if (this.gamePlay.activeChar) {
+      if (this.canMove(index)) {
+        this.gamePlay.selectCell(index, 'green');
+        this.gamePlay.setCursor(cursors.pointer);
+      } else {
+        this.gamePlay.setCursor(cursors.notallowed);
       }
     } else {
-      if(this.gamePlay.activeChar){
-        if(this.canMove(index)){
-          this.gamePlay.selectCell(index, 'green')
-          this.gamePlay.setCursor(cursors.pointer)
-        } else {
-          this.gamePlay.setCursor(cursors.notallowed)
-        }
-      } else {
-        this.gamePlay.setCursor(cursors.auto)
-      }
+      this.gamePlay.setCursor(cursors.auto);
     }
-    this.gamePlay.activeCell = index
-    
+    this.gamePlay.activeCell = index;
   }
 
   onCellLeave(index) {
     // TODO: react to mouse leave
-    this.gamePlay.hideCellTooltip(index)
+    this.gamePlay.hideCellTooltip(index);
   }
 
   getPositionNumber(player) {
@@ -120,52 +113,70 @@ export default class GameController {
     this.gamePlay.redrawPositions(this.gamePlay.positionedChars);
   }
 
-  checkEmptyCell(index){
-    let empt = false
+  checkEmptyCell(index) {
+    let empt = false;
     this.gamePlay.positionedChars.forEach((PositionedCharacter) => {
-      if(PositionedCharacter.position === index){
-        empt = PositionedCharacter
+      if (PositionedCharacter.position === index) {
+        empt = PositionedCharacter;
       }
-    })
-    return empt
+    });
+    return empt;
   }
 
-  getTooltipMsg(PositionedCharacter){
-    const char = PositionedCharacter.character
-    return `\u{1F396} ${char.level} \u{2694} ${char.attack} \u{1F6E1} ${char.defence} \u{2764} ${char.health}`
+  getTooltipMsg(PositionedCharacter) {
+    const char = PositionedCharacter.character;
+    return `\u{1F396} ${char.level} \u{2694} ${char.attack} \u{1F6E1} ${char.defence} \u{2764} ${char.health}`;
   }
 
-  canMove(index){
-    const moveArray = []
-    const x = this.gamePlay.activeChar.position
-    const leftBorder = Math.floor(x / this.gamePlay.boardSize) * this.gamePlay.boardSize
-    const rightBorder = leftBorder + this.gamePlay.boardSize - 1
-    
-    for (let step = 1; step <= this.gamePlay.activeChar.character.move; step +=1){
-      moveArray.push(x - step*this.gamePlay.boardSize)
-      moveArray.push(x + step*this.gamePlay.boardSize)
-      moveArray.push(x + step*(this.gamePlay.boardSize + 1))
-      moveArray.push(x - step*(this.gamePlay.boardSize + 1))
-      moveArray.push(x + step*(this.gamePlay.boardSize - 1))
-      moveArray.push(x - step*(this.gamePlay.boardSize - 1))
-      if(x-step >= leftBorder) (moveArray.push(x-step))
-      if(x+step <= rightBorder) (moveArray.push(x+step))
-    }
-    console.log(moveArray)
-    return moveArray.includes(index)
+  canMove(index) {
+    const moveArray = [];
+    const x = this.gamePlay.activeChar.position;
+    const leftBorder = Math.floor(x / this.gamePlay.boardSize) * this.gamePlay.boardSize;
+    const rightBorder = leftBorder + this.gamePlay.boardSize - 1;
 
-
-
+    for (let step = 1; step <= this.gamePlay.activeChar.character.move; step += 1) {
+      moveArray.push(x - step * this.gamePlay.boardSize);
+      moveArray.push(x + step * this.gamePlay.boardSize);
+      moveArray.push(x + step * (this.gamePlay.boardSize + 1));
+      moveArray.push(x - step * (this.gamePlay.boardSize + 1));
+      moveArray.push(x + step * (this.gamePlay.boardSize - 1));
+      moveArray.push(x - step * (this.gamePlay.boardSize - 1));
+      if (x - step >= leftBorder) (moveArray.push(x - step));
+      if (x + step <= rightBorder) (moveArray.push(x + step));
+    };
+    return moveArray.includes(index);
 
     // if (Math.abs(this.gamePlay.activeChar.position - index) <=2){
     //   return true
     // }
   }
 
-  canAtack(index){
-    if (Math.abs(index- this.gamePlay.activeChar.position) <=2){
-      console.log('can atack')
-      return true
+  canAtack(index) {
+    const attackArray = [];
+    const x = this.gamePlay.activeChar.position;
+    const steps = this.gamePlay.activeChar.character.attackDist
+    const leftBorder = Math.floor(x / this.gamePlay.boardSize) * this.gamePlay.boardSize;
+    const rightBorder = leftBorder + this.gamePlay.boardSize - 1;
+    const left = Math.max(leftBorder, x - steps)
+    const right = Math.min(rightBorder, x + steps)
+    
+    for(let step = - steps; step <= steps; step +=1){
+      const start = left + step*this.gamePlay.boardSize
+      const end = right  + step*this.gamePlay.boardSize
+      const range = [...Array(end - start + 1).keys()].map(x => x + start)
+      attackArray.push(...range)
     }
+    // console.log(attackArray.sort((a,b) => a-b))
+    return attackArray.includes(index)
+
+
+
+
+
+
+    // if (Math.abs(index - this.gamePlay.activeChar.position) <= 2) {
+    //   console.log('can atack');
+    //   return true;
+    // }
   }
 }

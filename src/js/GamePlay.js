@@ -13,6 +13,8 @@ export default class GamePlay {
     this.saveGameListeners = [];
     this.loadGameListeners = [];
     this.emtyCell = new Set();
+    this.activeChar
+    this.activeCell
   }
 
   bindToDOM(container) {

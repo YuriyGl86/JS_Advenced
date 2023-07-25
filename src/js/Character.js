@@ -26,3 +26,30 @@ export default class Character {
     // TODO: выбросите исключение, если кто-то использует "new Character()"
   }
 }
+
+const charProp ={
+  bowman: {
+    move: 2,
+    atack: 2
+  },
+  daemon: {
+    move: 1,
+    atack: 4
+  },
+  magician: {
+    move: 1,
+    atack: 4
+  },
+  vampire: {
+    move: 2,
+    atack: 2
+  },
+  swordsman: {
+    move: 4,
+    atack: 1
+  },
+  undead: {
+    move: 4,
+    atack: 1
+  }
+}

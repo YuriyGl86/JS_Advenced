@@ -8,6 +8,7 @@ import Daemon from './characters/Daemon';
 import { generateTeam } from './generators';
 import PositionedCharacter from './PositionedCharacter';
 import GamePlay from './GamePlay';
+import cursors from './cursors';
 
 export default class GameController {
   constructor(gamePlay, stateService) {
@@ -30,12 +31,11 @@ export default class GameController {
     const char = this.checkEmptyCell(index)
     
     if(char && ['bowman','swordsman','magician'].includes(char.character.type)){
-      console.log('position', char.position)
-      if(this.gamePlay.activeCell){
-        this.gamePlay.deselectCell(this.gamePlay.activeCell)
+      if(this.gamePlay.activeChar){
+        this.gamePlay.deselectCell(this.gamePlay.activeChar.position)
       }      
       this.gamePlay.selectCell(char.position)
-      this.gamePlay.activeCell = char.position
+      this.gamePlay.activeChar = char
     } else {
       GamePlay.showError('it is not your character')
     }
@@ -43,12 +43,40 @@ export default class GameController {
   }
 
   onCellEnter(index) {
-    // TODO: react to mouse enter
+    // TODO: react to mouse enter    
+    if(this.gamePlay.activeChar && this.gamePlay.activeCell != this.gamePlay.activeChar.position){      
+      this.gamePlay.deselectCell(this.gamePlay.activeCell)
+    }
     const char = this.checkEmptyCell(index)
     if(char){
       const msg = this.getTooltipMsg(char)
       this.gamePlay.showCellTooltip(msg, index)
+      if(['bowman','swordsman','magician'].includes(char.character.type)){
+        this.gamePlay.setCursor(cursors.pointer)
+      } else {
+        if (this.gamePlay.activeChar && this.canAtack(index)){
+          this.gamePlay.setCursor(cursors.crosshair)
+          this.gamePlay.selectCell(index, 'red')
+        } else {
+          this.gamePlay.setCursor(cursors.notallowed)
+
+        }
+    
+      }
+    } else {
+      if(this.gamePlay.activeChar){
+        if(this.canMove(index)){
+          this.gamePlay.selectCell(index, 'green')
+          this.gamePlay.setCursor(cursors.pointer)
+        } else {
+          this.gamePlay.setCursor(cursors.notallowed)
+        }
+      } else {
+        this.gamePlay.setCursor(cursors.auto)
+      }
     }
+    this.gamePlay.activeCell = index
+    
   }
 
   onCellLeave(index) {
@@ -105,5 +133,19 @@ export default class GameController {
   getTooltipMsg(PositionedCharacter){
     const char = PositionedCharacter.character
     return `\u{1F396} ${char.level} \u{2694} ${char.attack} \u{1F6E1} ${char.defence} \u{2764} ${char.health}`
+  }
+
+  canMove(index){
+    if (Math.abs(this.gamePlay.activeChar.position - index) <=2){
+      console.log('can move')
+      return true
+    }
+  }
+
+  canAtack(index){
+    if (Math.abs(index- this.gamePlay.activeChar.position) <=2){
+      console.log('can atack')
+      return true
+    }
   }
 }

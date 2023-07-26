@@ -15,6 +15,7 @@ export default class GamePlay {
     this.emtyCell = new Set();
     this.activeChar;
     this.activeCell;
+    this.positionedChars = []
   }
 
   bindToDOM(container) {

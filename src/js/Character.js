@@ -14,6 +14,7 @@
  */
 export default class Character {
   constructor(level, type = 'generic') {
+    // TODO: выбросите исключение, если кто-то использует "new Character()"
     if (new.target && new.target.name === 'Character') {
       throw new Error('It is forbidden to create new objects of the class Character');
     }
@@ -23,6 +24,15 @@ export default class Character {
     this.defence = 0;
     this.health = 50;
     this.type = type;
-    // TODO: выбросите исключение, если кто-то использует "new Character()"
+    
+    for (let i =1; i<level; i+=1){
+      this.upgarde()
+    }
+  }
+
+  upgarde(){
+    this.attack = Math.max(this.attack, this.attack * (80 + this.health) / 100)
+    this.health = Math.min(100, this.health + 80)
+    this.level += 1
   }
 }

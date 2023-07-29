@@ -12,10 +12,6 @@ export default class GamePlay {
     this.newGameListeners = [];
     this.saveGameListeners = [];
     this.loadGameListeners = [];
-    this.emtyCell = new Set();
-    this.activeChar;
-    this.activeCell;
-    this.positionedChars = []
   }
 
   bindToDOM(container) {
@@ -215,9 +211,9 @@ export default class GamePlay {
       damageEl.textContent = damage;
       damageEl.classList.add('damage');
       cell.appendChild(damageEl);
-
+      
       damageEl.addEventListener('animationend', () => {
-        cell.removeChild(damageEl);
+        cell.removeChild(cell.querySelector('span'));
         resolve();
       });
     });

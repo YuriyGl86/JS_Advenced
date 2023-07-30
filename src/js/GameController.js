@@ -215,7 +215,11 @@ export default class GameController {
       const range = [...Array(end - start + 1).keys()].map((i) => i + start);
       attackArray.push(...range);
     }
-    return attackArray.filter(pos => (pos >=0 && pos < this.gamePlay.boardSize**2 && pos !== x));
+    return attackArray.filter((pos) => (
+      pos >= 0
+        && pos < this.gamePlay.boardSize ** 2
+        && pos !== x
+    ));
   }
 
   canAtack(index) {
@@ -401,16 +405,15 @@ export default class GameController {
   }
 
   onLoadGameClick() {
-    try{
-      const loadData = this.stateService.load()
+    try {
+      const loadData = this.stateService.load();
       this.onNewGameClick();
-      this.gameState.from(loadData)
+      this.gameState.from(loadData);
       const newTheme = ['prairie', 'desert', 'arctic', 'mountain'][this.gameState.level];
       this.gamePlay.drawUi(themes[newTheme]);
       this.gamePlay.redrawPositions(this.gameState.positionedChars);
-    }catch (e) {
+    } catch (e) {
       GamePlay.showError(`ошибка загрузки: , ${e}`);
     }
-  
   }
 }

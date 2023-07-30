@@ -215,7 +215,7 @@ export default class GameController {
       const range = [...Array(end - start + 1).keys()].map((i) => i + start);
       attackArray.push(...range);
     }
-    return attackArray;
+    return attackArray.filter(pos => (pos >=0 && pos < this.gamePlay.boardSize**2 && pos !== x));
   }
 
   canAtack(index) {
@@ -371,7 +371,7 @@ export default class GameController {
   upLevelChars(userTeam) {
     userTeam.forEach((charPosition) => {
       const charPos = charPosition;
-      charPos.character.upgarde();
+      charPos.character.upgarde(1);
       const newPosition = this.getRandomPosition('player');
       charPos.position = newPosition;
       charPos.moveArray = this.getMoveArray(newPosition, charPos.character);

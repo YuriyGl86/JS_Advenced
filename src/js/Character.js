@@ -19,20 +19,19 @@ export default class Character {
       throw new Error('It is forbidden to create new objects of the class Character');
     }
 
-    this.level = level;
+    this.level = 1;
     this.attack = 0;
     this.defence = 0;
     this.health = 50;
     this.type = type;
-
-    for (let i = 1; i < level; i += 1) {
-      this.upgarde();
-    }
   }
 
-  upgarde() {
-    this.attack = Math.max(this.attack, this.attack * ((80 + this.health) / 100));
-    this.health = Math.min(100, this.health + 80);
-    this.level += 1;
+  upgarde(levels) {
+    for (let i = 1; i < levels; i += 1) {
+      this.attack = Math.max(this.attack, this.attack * ((80 + this.health) / 100));
+      this.defence = Math.max(this.defence, this.defence * ((80 + this.health) / 100));
+      this.health = Math.min(100, this.health + 80);
+      this.level += 1;
+    }
   }
 }

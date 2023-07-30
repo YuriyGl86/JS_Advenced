@@ -401,11 +401,16 @@ export default class GameController {
   }
 
   onLoadGameClick() {
-    this.onNewGameClick();
-    this.gameState.from(this.stateService.load());
-
-    const newTheme = ['prairie', 'desert', 'arctic', 'mountain'][this.gameState.level];
-    this.gamePlay.drawUi(themes[newTheme]);
-    this.gamePlay.redrawPositions(this.gameState.positionedChars);
+    try{
+      const loadData = this.stateService.load()
+      this.onNewGameClick();
+      this.gameState.from(loadData)
+      const newTheme = ['prairie', 'desert', 'arctic', 'mountain'][this.gameState.level];
+      this.gamePlay.drawUi(themes[newTheme]);
+      this.gamePlay.redrawPositions(this.gameState.positionedChars);
+    }catch (e) {
+      GamePlay.showError(`ошибка загрузки: , ${e}`);
+    }
+  
   }
 }

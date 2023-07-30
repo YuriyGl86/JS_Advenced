@@ -125,26 +125,10 @@ export default class GameController {
 
   placeTeams() {
     const playerTeam = generateTeam([Bowman, Magician, Swordsman], 1, 4).toArray();
-    const enemyTeam = generateTeam([Vampire, Undead, Daemon], 1, 1).toArray();
+    const enemyTeam = generateTeam([Vampire, Undead, Daemon], 1, 4).toArray();
 
     this.placeTeam(playerTeam);
-
-    // playerTeam.forEach((char) => {
-    //   const position = this.getRandomPosition('player')
-    //   const positionedCharacter = new PositionedCharacter(char, position)
-    //   positionedCharacter.moveArray = this.getMoveArray(position, char)
-    //   positionedCharacter.attackArray = this.getAttackArray(position, char)
-    //   this.gameState.positionedChars.push(positionedCharacter);
-    // });
     this.placeTeam(enemyTeam, 'enemy');
-    // enemyTeam.forEach((char) => {
-    //   const position = this.getRandomPosition('enemy')
-    //   const positionedCharacter = new PositionedCharacter(char, position)
-    //   positionedCharacter.moveArray = this.getMoveArray(position,char)
-    //   positionedCharacter.attackArray = this.getAttackArray(position, char)
-    //   this.gameState.positionedChars.push(positionedCharacter);
-    // });
-
     this.gamePlay.redrawPositions(this.gameState.positionedChars);
   }
 
@@ -367,7 +351,7 @@ export default class GameController {
   newLevel(userTeam) {
     this.gameState.userTurn = true;
     this.upLevelChars(userTeam);
-    this.placeTeam(generateTeam([Vampire, Undead, Daemon], 1, 1).toArray(), 'enemy');
+    this.placeTeam(generateTeam([Vampire, Undead, Daemon], 1, 4).toArray(), 'enemy');
     const newTheme = ['prairie', 'desert', 'arctic', 'mountain'][this.gameState.level];
     this.gamePlay.drawUi(themes[newTheme]);
   }
@@ -375,7 +359,7 @@ export default class GameController {
   upLevelChars(userTeam) {
     userTeam.forEach((charPosition) => {
       const charPos = charPosition;
-      charPos.character.upgarde(1);
+      charPos.character.upgarde(2);
       const newPosition = this.getRandomPosition('player');
       charPos.position = newPosition;
       charPos.moveArray = this.getMoveArray(newPosition, charPos.character);

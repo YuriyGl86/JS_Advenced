@@ -268,7 +268,7 @@ export default class GameController {
       target.health -= damage
       this.gamePlay.redrawPositions(this.gameState.positionedChars)
       this.checkHealth(target, damage)
-      this.endRound()
+      if(!this.gameState.gameOver){this.endRound()}
       
     })
     
@@ -368,6 +368,7 @@ export default class GameController {
       this.gameState.level += 1
       if(this.gameState.level > 3){
         this.endGame()
+        alert('Игра окончена. Вы выиграли')
         return
       } else {
       alert('конец раунда')
@@ -426,6 +427,7 @@ export default class GameController {
   }
 
   onLoadGameClick(){
+    this.onNewGameClick()
     this.gameState.from(this.stateService.load())
     
     const newTheme = ['prairie', 'desert', 'arctic', 'mountain' ][this.gameState.level]

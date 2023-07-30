@@ -17,7 +17,7 @@ export function* characterGenerator(allowedTypes, maxLevel) {
   while (true) {
     const randomClass = types[Math.floor(Math.random() * types.length)];
     const randomLavel = Math.floor(Math.random() * max) + 1;
-    yield new randomClass(randomLavel);
+    yield new randomClass(randomLavel); // eslint-disable-line new-cap
   }
 }
 

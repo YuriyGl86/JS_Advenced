@@ -178,11 +178,11 @@ export default class GamePlay {
   }
 
   static showError(message) {
-    alert(message);
+    alert(message); // eslint-disable-line no-alert
   }
 
   static showMessage(message) {
-    alert(message);
+    alert(message); // eslint-disable-line no-alert
   }
 
   selectCell(index, color = 'yellow') {
@@ -211,7 +211,7 @@ export default class GamePlay {
       damageEl.textContent = damage;
       damageEl.classList.add('damage');
       cell.appendChild(damageEl);
-      
+
       damageEl.addEventListener('animationend', () => {
         cell.removeChild(cell.querySelector('span'));
         resolve();

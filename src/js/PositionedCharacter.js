@@ -12,7 +12,7 @@ export default class PositionedCharacter {
 
     this.character = character;
     this.position = position;
-    this.moveArray = []
-    this.attackArray = []
+    this.moveArray = [];
+    this.attackArray = [];
   }
 }

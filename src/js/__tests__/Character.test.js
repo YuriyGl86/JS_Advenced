@@ -2,6 +2,7 @@ import Character from '../Character';
 
 test('creating new Character shoud throw error ', () => {
   expect(() => {
-    new Character();
+    const char = new Character();
+    char.attack = 10;
   }).toThrow();
 });

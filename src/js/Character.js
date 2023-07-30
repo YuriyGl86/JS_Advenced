@@ -24,15 +24,15 @@ export default class Character {
     this.defence = 0;
     this.health = 50;
     this.type = type;
-    
-    for (let i =1; i<level; i+=1){
-      this.upgarde()
+
+    for (let i = 1; i < level; i += 1) {
+      this.upgarde();
     }
   }
 
-  upgarde(){
-    this.attack = Math.max(this.attack, this.attack * (80 + this.health) / 100)
-    this.health = Math.min(100, this.health + 80)
-    this.level += 1
+  upgarde() {
+    this.attack = Math.max(this.attack, this.attack * ((80 + this.health) / 100));
+    this.health = Math.min(100, this.health + 80);
+    this.level += 1;
   }
 }

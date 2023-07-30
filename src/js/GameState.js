@@ -1,6 +1,7 @@
 export default class GameState {
   constructor() {
     this.userTurn = true;
+    this.gameOver = false
     this.emtyCell = new Set();
     this.activeChar;
     this.activeCell;
@@ -8,8 +9,15 @@ export default class GameState {
     this.level = 0
   }
 
-  static from(object) {
+  from(object) {
     // TODO: create object
+    this.userTurn = object.userTurn
+    this.emtyCell = object.emtyCell
+    this.activeChar = object.activeChar
+    this.activeCell = object.activeCell
+    this.positionedChars = object.positionedChars
+    this.level = object.level
+    this.gameOver = object.gameOver
     return null;
   }
 }

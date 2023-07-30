@@ -25,6 +25,9 @@ export default class GameController {
     this.gamePlay.addCellLeaveListener(this.onCellLeave.bind(this));
     this.gamePlay.addCellClickListener(this.onCellClick.bind(this));
     this.gamePlay.addNewGameListener(this.onNewGameClick.bind(this))
+    this.gamePlay.addSaveGameListener(this.onSaveGameClick.bind(this))
+
+    this.gamePlay.addLoadGameListener(this.onLoadGameClick.bind(this))
 
     // TODO: add event listeners to gamePlay events
     // TODO: load saved stated from stateService
@@ -253,6 +256,7 @@ export default class GameController {
     const damage = Math.max(attacker.attack - target.defence, attacker.attack * 0.1)
     console.log('damage', damage)
     console.log('defence',target.defence)
+    console.log('target.health', target.health)
     this.gamePlay.showDamage(index, damage)    
     .then(() => {
       if(this.gameState.userTurn){
@@ -305,7 +309,7 @@ export default class GameController {
       for(let user of userTeam){
           const bestMove = this.bestMove(comp, user)
           
-          console.log('bestMove',bestMove)
+          
           possibleMove.push({
             charPos: comp,
             moveTo: bestMove,
@@ -319,6 +323,7 @@ export default class GameController {
   }
 
   endRound(){
+    if(this.gameState.gameOver){return}
     if (this.gameState.userTurn){
       this.gameState.userTurn = false
       this.comp()
@@ -345,7 +350,8 @@ export default class GameController {
   }
 
   checkHealth(target, damage){
-    target.health -= damage
+    
+    console.log('target.health after', target.health)
     if(target.health <=0){
       const idx = this.gameState.positionedChars.findIndex(char => char.character === target)
       this.gameState.positionedChars.splice(idx, 1)
@@ -359,8 +365,14 @@ export default class GameController {
     const compTeam = this.gameState.positionedChars.filter(charPos => !['bowman', 'swordsman', 'magician'].includes(charPos.character.type))
     const userTeam = this.gameState.positionedChars.filter(charPos => ['bowman', 'swordsman', 'magician'].includes(charPos.character.type))
     if (compTeam.length ===0){
+      this.gameState.level += 1
+      if(this.gameState.level > 3){
+        this.endGame()
+        return
+      } else {
       alert('конец раунда')
       this.newLevel(userTeam)
+      }
     }
     if(userTeam.length === 0){
       alert('Вы проиграли')
@@ -370,11 +382,8 @@ export default class GameController {
 
   newLevel(userTeam){
     this.gameState.userTurn = true
-    this.gameState.level += 1
-    if(this.gameState.level > 1){
-      this.endGame()
-      return
-    }
+    
+    console.log(this.gameState.level)
     this.upLevelChars(userTeam)
     this.placeTeam(generateTeam([Vampire, Undead, Daemon], 1, 1).toArray(), 'enemy')
     const newTheme = ['prairie', 'desert', 'arctic', 'mountain' ][this.gameState.level]
@@ -393,6 +402,7 @@ export default class GameController {
   }
 
   endGame(){
+    this.gameState.gameOver = true
     this.gamePlay.cellClickListeners = []
     this.gamePlay.cellEnterListeners = []
     this.gamePlay.cellLeaveListeners = []
@@ -402,10 +412,25 @@ export default class GameController {
   onNewGameClick(){
     this.endGame()
     this.gamePlay.newGameListeners = []
+    this.gamePlay.saveGameListeners = []
+    this.gamePlay.loadGameListeners = []
     this.gameState = new GameState()
     this.init()
 
  
+  }
+
+  onSaveGameClick(){
+    this.stateService.save(this.gameState)
+    alert('игра сохранена')
+  }
+
+  onLoadGameClick(){
+    this.gameState.from(this.stateService.load())
+    
+    const newTheme = ['prairie', 'desert', 'arctic', 'mountain' ][this.gameState.level]
+    this.gamePlay.drawUi(themes[newTheme])
+    this.gamePlay.redrawPositions(this.gameState.positionedChars) 
   }
 
 }

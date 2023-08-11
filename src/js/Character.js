@@ -26,7 +26,7 @@ export default class Character {
     this.type = type;
   }
 
-  upgarde(levels) {
+  upgrade(levels) {
     for (let i = 1; i < levels; i += 1) {
       this.attack = Math.max(this.attack, this.attack * ((80 + this.health) / 100));
       this.defence = Math.max(this.defence, this.defence * ((80 + this.health) / 100));

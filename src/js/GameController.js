@@ -11,6 +11,15 @@ import GamePlay from './GamePlay';
 import cursors from './cursors';
 import GameState from './GameState';
 
+const Chars = {
+  bowman: Bowman,
+  swordsman: Swordsman,
+  magician: Magician,
+  vampire: Vampire,
+  undead: Undead,
+  daemon: Daemon,
+};
+
 export default class GameController {
   constructor(gamePlay, stateService) {
     this.gamePlay = gamePlay;
@@ -124,8 +133,8 @@ export default class GameController {
   }
 
   placeTeams() {
-    const playerTeam = generateTeam([Bowman, Magician, Swordsman], 1, 4).toArray();
-    const enemyTeam = generateTeam([Vampire, Undead, Daemon], 1, 4).toArray();
+    const playerTeam = generateTeam([Bowman, Magician, Swordsman], 1, 2).toArray();
+    const enemyTeam = generateTeam([Vampire, Undead, Daemon], 1, 2).toArray();
 
     this.placeTeam(playerTeam);
     this.placeTeam(enemyTeam, 'enemy');
@@ -349,22 +358,31 @@ export default class GameController {
   }
 
   newLevel(userTeam) {
-    this.gameState.userTurn = true;
+    this.gameState.userTurn = false;
     this.upLevelChars(userTeam);
-    this.placeTeam(generateTeam([Vampire, Undead, Daemon], 1, 4).toArray(), 'enemy');
+    const newLavelEnemyCount = this.gameState.level + 2;
+    this.placeTeam(generateTeam([Vampire, Undead, Daemon], this.gameState.level + 1, newLavelEnemyCount).toArray(), 'enemy');
     const newTheme = ['prairie', 'desert', 'arctic', 'mountain'][this.gameState.level];
     this.gamePlay.drawUi(themes[newTheme]);
+    this.gamePlay.redrawPositions(this.gameState.positionedChars);
   }
 
   upLevelChars(userTeam) {
     userTeam.forEach((charPosition) => {
       const charPos = charPosition;
-      charPos.character.upgarde(2);
+      charPos.character.upgrade(2);
       const newPosition = this.getRandomPosition('player');
       charPos.position = newPosition;
       charPos.moveArray = this.getMoveArray(newPosition, charPos.character);
       charPos.attackArray = this.getAttackArray(newPosition, charPos.character);
     });
+
+    const additionChars = this.gameState.level + 2 - userTeam.length;
+    this.placeTeam(generateTeam(
+      [Bowman, Magician, Swordsman],
+      this.gameState.level + 1,
+      additionChars,
+    ).toArray());
   }
 
   endGame() {
@@ -396,8 +414,28 @@ export default class GameController {
       const newTheme = ['prairie', 'desert', 'arctic', 'mountain'][this.gameState.level];
       this.gamePlay.drawUi(themes[newTheme]);
       this.gamePlay.redrawPositions(this.gameState.positionedChars);
+      this.restoreCharPos();
+      alert('Игра загружена.'); // eslint-disable-line no-alert
     } catch (e) {
       GamePlay.showError(`ошибка загрузки: , ${e}`);
     }
+  }
+
+  restoreCharPos() {
+    const restoredCharPosArray = [];
+    this.gameState.positionedChars.forEach((charPos) => {
+      const restoredChar = new Chars[charPos.character.type](charPos.character.level);
+
+      for (const [key, value] of Object.entries(charPos.character)) {
+        restoredChar[key] = value;
+      }
+
+      const newCharPos = new PositionedCharacter(restoredChar, charPos.position);
+      newCharPos.attackArray = this.getAttackArray(charPos.position, restoredChar);
+      newCharPos.moveArray = this.getMoveArray(charPos.position, restoredChar);
+      restoredCharPosArray.push(newCharPos);
+    });
+    this.gameState.positionedChars = restoredCharPosArray;
+    this.gameState.emtyCell = new Set();
   }
 }

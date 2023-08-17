@@ -7,6 +7,8 @@ export default class GameState {
     this.activeCell = undefined;
     this.positionedChars = [];
     this.level = 0;
+    this.score = 0;
+    this.maxScore = 0;
   }
 
   from(object) {
@@ -18,6 +20,8 @@ export default class GameState {
     this.positionedChars = object.positionedChars;
     this.level = object.level;
     this.gameOver = object.gameOver;
+    this.score = object.score;
+    this.maxScore = object.maxScore;
     return null;
   }
 }

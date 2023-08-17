@@ -11,8 +11,8 @@ import Vampire from '../characters/Vampire';
 
 test.each([
   [1, 1, 25, 25, 50],
-  [2, 2, 32.5, 32.5, 100],
-  [3, 3, 58.5, 58.5, 100],
+  [2, 2, 32, 32, 100],
+  [3, 3, 57, 57, 100],
 ])(
   ('shoud return correct string for char level %s'),
   (levl, levlCheck, attack, defence, health) => {

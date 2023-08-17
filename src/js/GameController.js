@@ -75,6 +75,8 @@ export default class GameController {
 
   onCellEnter(index) {
     // TODO: react to mouse enter
+    if (!this.gameState.userTurn) { return; }
+
     if (this.gameState.activeChar
       && this.gameState.activeCell
       && this.gameState.activeCell !== this.gameState.activeChar.position) {
@@ -133,8 +135,9 @@ export default class GameController {
   }
 
   placeTeams() {
-    const playerTeam = generateTeam([Bowman, Magician, Swordsman], 1, 2).toArray();
-    const enemyTeam = generateTeam([Vampire, Undead, Daemon], 1, 2).toArray();
+    const playerTeam = generateTeam([Chars.bowman, Chars.magician, Chars.swordsman], 1, 2)
+      .toArray();
+    const enemyTeam = generateTeam([Chars.vampire, Chars.undead, Chars.daemon], 1, 2).toArray();
 
     this.placeTeam(playerTeam);
     this.placeTeam(enemyTeam, 'enemy');
@@ -243,15 +246,16 @@ export default class GameController {
 
   attack(attacker, index) {
     const target = this.checkEmptyCell(index).character;
-    const damage = Math.max(attacker.attack - target.defence, attacker.attack * 0.1);
+    const damage = Math.floor(Math.max(attacker.attack - target.defence, attacker.attack * 0.1));
+    if (this.gameState.userTurn) {
+      this.gamePlay.deselectCell(index);
+      this.gamePlay.deselectCell(this.gameState.activeChar.position);
+      this.gameState.activeCell = undefined;
+      this.gameState.activeChar = undefined;
+      this.saveScore(damage);
+    }
     this.gamePlay.showDamage(index, damage)
       .then(() => {
-        if (this.gameState.userTurn) {
-          this.gamePlay.deselectCell(index);
-          this.gamePlay.deselectCell(this.gameState.activeChar.position);
-          this.gameState.activeCell = undefined;
-          this.gameState.activeChar = undefined;
-        }
         target.health -= damage;
         this.gamePlay.redrawPositions(this.gameState.positionedChars);
         this.checkHealth(target, damage);
@@ -260,8 +264,7 @@ export default class GameController {
   }
 
   comp() {
-    const compTeam = this.gameState.positionedChars.filter((charPos) => !['bowman', 'swordsman', 'magician'].includes(charPos.character.type));
-    const userTeam = this.gameState.positionedChars.filter((charPos) => ['bowman', 'swordsman', 'magician'].includes(charPos.character.type));
+    const { userTeam, compTeam } = this.getTeams();
     const possibleAttack = [];
     for (const comp of compTeam) {
       for (const user of userTeam) {
@@ -283,13 +286,12 @@ export default class GameController {
       const attacker = possibleAttack[0].charPos.character;
       this.attack(attacker, possibleAttack[0].index);
     } else {
-      this.compMove();
+      this.compMove(userTeam, compTeam);
     }
   }
 
-  compMove() {
-    const compTeam = this.gameState.positionedChars.filter((charPos) => !['bowman', 'swordsman', 'magician'].includes(charPos.character.type));
-    const userTeam = this.gameState.positionedChars.filter((charPos) => ['bowman', 'swordsman', 'magician'].includes(charPos.character.type));
+  compMove(userTeam, compTeam) {
+    // const {userTeam, compTeam} = this.getTeams()
     const possibleMove = [];
     for (const comp of compTeam) {
       for (const user of userTeam) {
@@ -307,6 +309,10 @@ export default class GameController {
   }
 
   endRound() {
+    if (this.gameState.activeCell) {
+      this.gamePlay.deselectCell(this.gameState.activeCell);
+    }
+
     if (this.gameState.gameOver) { return; }
     if (this.gameState.userTurn) {
       this.gameState.userTurn = false;
@@ -339,8 +345,8 @@ export default class GameController {
   }
 
   checkWin() {
-    const compTeam = this.gameState.positionedChars.filter((charPos) => !['bowman', 'swordsman', 'magician'].includes(charPos.character.type));
-    const userTeam = this.gameState.positionedChars.filter((charPos) => ['bowman', 'swordsman', 'magician'].includes(charPos.character.type));
+    const { userTeam, compTeam } = this.getTeams();
+
     if (compTeam.length === 0) {
       this.gameState.level += 1;
       if (this.gameState.level > 3) {
@@ -355,6 +361,22 @@ export default class GameController {
       alert('Вы проиграли'); // eslint-disable-line no-alert
       this.endGame();
     }
+  }
+
+  getTeams() {
+    const teams = {
+      userTeam: [],
+      compTeam: [],
+    };
+    for (const charPos of this.gameState.positionedChars) {
+      if (['bowman', 'swordsman', 'magician'].includes(charPos.character.type)) {
+        teams.userTeam.push(charPos);
+      } else {
+        teams.compTeam.push(charPos);
+      }
+    }
+
+    return teams;
   }
 
   newLevel(userTeam) {
@@ -379,7 +401,7 @@ export default class GameController {
 
     const additionChars = this.gameState.level + 2 - userTeam.length;
     this.placeTeam(generateTeam(
-      [Bowman, Magician, Swordsman],
+      [Chars.bowman, Chars.magician, Chars.swordsman],
       this.gameState.level + 1,
       additionChars,
     ).toArray());
@@ -397,7 +419,9 @@ export default class GameController {
     this.gamePlay.newGameListeners = [];
     this.gamePlay.saveGameListeners = [];
     this.gamePlay.loadGameListeners = [];
+    const { maxScore } = this.gameState;
     this.gameState = new GameState();
+    this.gameState.maxScore = maxScore;
     this.init();
   }
 
@@ -411,7 +435,7 @@ export default class GameController {
       const loadData = this.stateService.load();
       this.onNewGameClick();
       this.gameState.from(loadData);
-      const newTheme = ['prairie', 'desert', 'arctic', 'mountain'][this.gameState.level];
+      const newTheme = Object.values(themes)[this.gameState.level];
       this.gamePlay.drawUi(themes[newTheme]);
       this.gamePlay.redrawPositions(this.gameState.positionedChars);
       this.restoreCharPos();
@@ -437,5 +461,14 @@ export default class GameController {
     });
     this.gameState.positionedChars = restoredCharPosArray;
     this.gameState.emtyCell = new Set();
+  }
+
+  saveScore(damage) {
+    this.gameState.score += damage;
+    if (this.gameState.score > this.gameState.maxScore) {
+      this.gameState.maxScore = this.gameState.score;
+    }
+    console.log(this.gameState.score); // eslint-disable-line no-console
+    console.log(this.gameState.maxScore); // eslint-disable-line no-console
   }
 }
